@@ -1,0 +1,59 @@
+{
+  "name": "react-holiday-banner",
+  "version": "0.0.1",
+  "description": "Lightweight client-time based React banner component for holidays and special days.",
+  "license": "MIT",
+  "author": "Erhan Akkaya",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "tsup": "8.0.1",
+    "typescript": "5.6.2",
+    "@types/react": "18.3.0"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts --sourcemap --format cjs,esm --clean",
+    "dev": "tsup src/index.ts --dts --sourcemap --format cjs,esm --watch --clean",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erhanakkaya/react-holiday-banner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erhanakkaya/react-holiday-banner/issues"
+  },
+  "homepage": "https://github.com/erhanakkaya/react-holiday-banner#readme",
+  "keywords": [
+    "react",
+    "banner",
+    "holiday",
+    "special-days",
+    "announcement",
+    "client-time",
+    "lightweight",
+    "no-deps"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
