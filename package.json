@@ -37,12 +37,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erhanakkaya/react-holiday-banner.git"
+    "url": "git+https://github.com/erhanaky/react-holiday-banner.git"
   },
   "bugs": {
-    "url": "https://github.com/erhanakkaya/react-holiday-banner/issues"
+    "url": "https://github.com/erhanaky/react-holiday-banner/issues"
   },
-  "homepage": "https://github.com/erhanakkaya/react-holiday-banner#readme",
+  "homepage": "https://github.com/erhanaky/react-holiday-banner#readme",
   "keywords": [
     "react",
     "banner",
