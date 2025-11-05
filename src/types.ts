@@ -122,10 +122,66 @@ export interface Holiday {
   notes?: string;
 }
 
+/* ------------------------------------------------------------------ */
+/*  GEVŞEK GİRİŞ TİPLERİ (runtime'da normalize edilecek)              */
+/*  Amaç: import type { Holiday } ile de çalışsın; JSON/REST de tolere */
+/* ------------------------------------------------------------------ */
+
+/** MonthLoose: dış dünyadan gelen sayıları tolere et (örn: 1..12) */
+export type MonthLoose = number;
+
+/** Tek gün (loose) */
+export interface DateSingleLoose {
+  type: "single";
+  month: MonthLoose;
+  day: number; // 1–31 hedeflenir, normalize kontrolü yapacağız
+}
+
+/** Aralık (loose) */
+export interface DateRangeLoose {
+  start: { month: MonthLoose; day: number };
+  end: { month: MonthLoose; day: number };
+  inclusive?: boolean;
+}
+
+/** Multi giriş (loose) */
+export interface DateMultiEntryLoose {
+  month: MonthLoose;
+  day: number;
+}
+
+/** HolidayLoose: dış dünyadan gelen gevşek tip (REST/JSON) */
+export interface HolidayLoose {
+  id: string;
+  title?: string;
+  active?: boolean;
+
+  date?: DateSingleLoose;
+  range?: DateRangeLoose;
+  multi?: DateMultiEntryLoose[];
+
+  schedule?: Schedule;
+  display?: Display;
+
+  content?: {
+    text?: string;
+    image?: ContentImage;
+  };
+
+  style?: StyleOptions;
+  priority?: number;
+
+  tags?: string[];
+  notes?: string;
+}
+
+/** Bileşenin kabul ettiği giriş: strict veya loose */
+export type HolidayInput = Holiday | HolidayLoose;
+
 /** Bileşen props (holiday standardı) */
 export interface HolidayProps {
   /** Banner seçiminde kullanılacak kayıtlar */
-  holidaysData: Holiday[];
+  holidaysData: HolidayInput[];
 
   /** Test için tarih enjeksiyonu (verilmezse tarayıcı saati kullanılır) */
   holidaysDateOverride?: Date;
