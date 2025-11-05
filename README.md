@@ -93,6 +93,74 @@ export default function Header() {
 
 ---
 
+## 🧭 Using with Next.js (App Router)
+
+If you're using **Next.js 13+ (App Router)**, remember that `layout.tsx` and `page.tsx` are **Server Components** by default.
+
+`react-holiday-banner` is a **Client Component**, so you cannot use it directly in a server layout.
+Instead, wrap it inside a small client wrapper component.
+
+### 1️⃣ Create a client wrapper
+
+```tsx
+// app/_components/BannerClient.tsx
+"use client";
+import { HolidayBanner } from "react-holiday-banner";
+import type { Holiday } from "react-holiday-banner";
+
+export default function BannerClient({ holidays }: { holidays: Holiday[] }) {
+  return <HolidayBanner holidaysData={holidays} />;
+}
+```
+
+### 2️⃣ Provide your data
+
+```ts
+// app/holidays.ts (or anywhere you prefer)
+import type { Holiday } from "react-holiday-banner";
+
+const holidays: Holiday[] = [
+  {
+    id: "newyear",
+    active: true,
+    range: {
+      start: { month: 12, day: 31 },
+      end: { month: 1, day: 1 },
+      inclusive: true,
+    },
+    content: { text: "🎉 Happy New Year!" },
+    style: { background: "#eef6ff", textColor: "#0b63ce" },
+  },
+];
+
+export default holidays;
+```
+
+### 3️⃣ Use it inside your layout
+
+```tsx
+// app/layout.tsx
+import type { ReactNode } from "react";
+import BannerClient from "@/app/_components/BannerClient";
+import holidays from "@/app/holidays";
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <BannerClient holidays={holidays} />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+> ✅ This way, your layout stays **Server Component**,  
+> and `HolidayBanner` safely runs as a **Client Component** using browser time.
+
+---
+
 ## Why client time? (SSR/Next.js behaviour)
 
 - On SSR environments (Next.js, Remix), we **do not** render the banner on the server.
