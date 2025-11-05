@@ -19,6 +19,7 @@ import {
   textBlockStyle,
 } from "./lib/style";
 import { useStableHolidaysData } from "./hooks/useStableHolidaysData";
+import { normalizeHolidayList } from "./lib/normalize"; // ✅ EKLENDİ
 
 export function HolidayBanner(props: HolidayProps) {
   const { holidaysData, holidaysDateOverride, className } = props;
@@ -37,14 +38,20 @@ export function HolidayBanner(props: HolidayProps) {
   // ✅ Kullanıcı her render'da yeni array üretse bile içerik değişmediyse referansı sabitle
   const stableData = useStableHolidaysData(holidaysData);
 
+  // ✅ Gevşek tipleri strict tipe çek (runtime normalize) — mevcut iş mantığına dokunmadan
+  const normalized = React.useMemo(
+    () => normalizeHolidayList(stableData),
+    [stableData]
+  );
+
   // ————————————————————————————————————————————————————————
   // 2) Bugüne uyan kaydı seç (hook sırası bozulmasın diye koşulsuz useMemo)
   //    refNow dependency'sini timestamp ile stabilize ediyoruz
   // ————————————————————————————————————————————————————————
   const hol: Holiday | null = React.useMemo(() => {
     if (!refNow) return null;
-    return pickHolidayForNow(stableData, refNow);
-  }, [stableData, refNow ? refNow.getTime() : null]);
+    return pickHolidayForNow(normalized, refNow);
+  }, [normalized, refNow ? refNow.getTime() : null]);
 
   // Zaman hazır değilse veya eşleşme yoksa render etme
   if (!refNow || !hol) return null;
