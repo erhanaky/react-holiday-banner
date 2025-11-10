@@ -5,4 +5,4 @@ dist/
 .vscode/
 .env
 scripts/collect-project-snapshot.mjs
-project-snapshot.md
+PROJECT_SNAPSHOT.md
