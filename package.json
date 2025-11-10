@@ -1,6 +1,6 @@
 {
   "name": "react-holiday-banner",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Lightweight client-time based React banner component for holidays and special days.",
   "license": "MIT",
   "author": "Erhan Akkaya",
