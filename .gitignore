@@ -4,3 +4,5 @@ dist/
 .DS_Store
 .vscode/
 .env
+scripts/collect-project-snapshot.mjs
+project-snapshot.md
