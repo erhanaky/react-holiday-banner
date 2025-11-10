@@ -6,7 +6,8 @@ Lightweight, dependency‑free **React** banner component that automatically sho
 > ✅ Works with **React 18+** and Next.js (App/Pages Router), Vite, CRA.  
 > ✅ No CSS framework required; **inline styles + optional class hooks**.  
 > ✅ **Zero** external runtime dependencies.  
-> ✅ Single visible banner at a time (highest **priority** wins).
+> ✅ Single visible banner at a time (highest **priority** wins).  
+> ✅ **CLS‑free preflight** for Android/Chrome with **reserved height** (no extra props).
 
 ---
 
@@ -26,11 +27,17 @@ pnpm add react-holiday-banner
 
 ## Quick Start (TypeScript)
 
-Create a `holidays.ts` file next to your component:
+Create a `holidays.ts` file next to your component. We recommend driving the visual height from a single constant so **preflight** can reserve the same value on first paint:
 
 ```ts
 // holidays.ts
 import type { Holiday } from "react-holiday-banner";
+
+/**
+ * Note: For CLS‑free preflight, keep a single source of truth for height.
+ * The preflight script reserves this value on first paint when a static banner matches.
+ */
+export const BANNER_HEIGHT = "48px";
 
 const holidays: Holiday[] = [
   {
@@ -41,20 +48,20 @@ const holidays: Holiday[] = [
       end: { month: 1, day: 1 },
       inclusive: true,
     },
-    display: { layout: "full", position: "sticky" },
+    display: { layout: "full", position: "static" },
     content: {
       text: "Happy New Year! 🎉",
       image: {
         src: "/confetti.png",
         alt: "Confetti",
         position: "right",
-        maxHeight: "32px",
+        maxHeight: BANNER_HEIGHT,
       },
     },
     style: {
       background: "#eef6ff",
       textColor: "#0b63ce",
-      height: "56px",
+      height: BANNER_HEIGHT,
       paddingX: "24px",
       fontSize: "16px",
       gap: "12px",
@@ -72,7 +79,7 @@ Use it in your app header/layout:
 
 ```tsx
 import { HolidayBanner } from "react-holiday-banner";
-import holidaysData from "./holidays";
+import holidaysData, { BANNER_HEIGHT } from "./holidays";
 
 export default function Header() {
   // Optional: freeze time for testing
@@ -113,11 +120,13 @@ export default function BannerClient({ holidays }: { holidays: Holiday[] }) {
 }
 ```
 
-### 2️⃣ Provide your data
+### 2️⃣ Provide your data (keep a shared height constant)
 
 ```ts
 // app/holidays.ts (or anywhere you prefer)
 import type { Holiday } from "react-holiday-banner";
+
+export const BANNER_HEIGHT = "48px";
 
 const holidays: Holiday[] = [
   {
@@ -129,7 +138,12 @@ const holidays: Holiday[] = [
       inclusive: true,
     },
     content: { text: "🎉 Happy New Year!" },
-    style: { background: "#eef6ff", textColor: "#0b63ce" },
+    style: {
+      background: "#eef6ff",
+      textColor: "#0b63ce",
+      height: BANNER_HEIGHT,
+    },
+    display: { layout: "full", position: "static" },
   },
 ];
 
@@ -142,7 +156,7 @@ export default holidays;
 // app/layout.tsx
 import type { ReactNode } from "react";
 import BannerClient from "@/app/_components/BannerClient";
-import holidays from "@/app/holidays";
+import holidays, { BANNER_HEIGHT } from "@/app/holidays";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -158,6 +172,24 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 > ✅ This way, your layout stays **Server Component**,  
 > and `HolidayBanner` safely runs as a **Client Component** using browser time.
+
+---
+
+## 🚫 CLS‑free on Android/Chrome (Preflight Reserved Height)
+
+On some Android Chrome devices, absolutely positioned UI near the top can shift during hydration if the banner appears **after** first paint.
+
+To avoid this, the package injects a **tiny inline script** in the initial HTML that:
+
+- checks if **any `static` banner** matches **today** (client local time),
+- reads its intended height from `style.height` (falls back to **"48px"**),
+- writes `--rhb-h` to the document root,
+- and the outer wrapper reserves `min-height: var(--rhb-h, 0)`.
+
+**Actionable tip:** keep banner height consistent via a shared constant (e.g. `BANNER_HEIGHT = "48px"`), and set `style.height` for banners that can appear on page load. This guarantees preflight reserves the right space from the very first paint.
+
+- Applies **only** to `position: "static"` (sticky/fixed don’t need reservation).
+- No new props; fully automatic.
 
 ---
 
@@ -395,6 +427,7 @@ const holidaysData = holidaysJson as Holiday[];
 - **Banner not visible on SSR** — expected; it’s rendered **after hydration**. Use `holidaysDateOverride` to test in dev.
 - **Multiple matches** — increase `priority` to control which banner wins.
 - **Positioning/CSS collisions** — set `display.position = "sticky"` and tune `style.zIndex`. For constrained width, set `style.containerClass`.
+- **Banner shifts on Android/Chrome** — ensure `style.height` is set via a **shared constant** (e.g. `BANNER_HEIGHT`) for any `static` banner that may match on load. Preflight will reserve that value on first paint (fallback `"48px"`).
 
 ---
 
